@@ -61,7 +61,8 @@ public class BundleValidator {
                                         if (transactionViewModel.value() < 0) { // let's recreate the address of the transactionViewModel.
                                             final SpongeFactory.Mode addressMode;
                                             if(Snapshot.initialState.containsKey(transactionViewModel.getAddressHash())) {
-                                                addressMode = SpongeFactory.Mode.CURL;
+                                                //TODO: for testnet - remove the snapshot initialState logic altogether after snapshot.
+                                                addressMode = SpongeFactory.Mode.KERL;
                                             } else {
                                                 addressMode = SpongeFactory.Mode.KERL;
                                             }
