@@ -63,6 +63,14 @@ public class Milestone {
 
     public void init(final SpongeFactory.Mode mode, final LedgerValidator ledgerValidator, final boolean revalidate) {
         this.ledgerValidator = ledgerValidator;
+        //if revalidate, then do this before init milestone trackers.
+        if (revalidate) {
+            try {
+                ledgerValidator.init(revalidate);
+            } catch (Exception e) {
+                log.error("Error initializing snapshots. Skipping.", e);
+            }
+        }
         (new Thread(() -> {
             while (!shuttingDown) {
                 long scanTime = System.currentTimeMillis();
@@ -111,10 +119,12 @@ public class Milestone {
 
         (new Thread(() -> {
 
-            try {
-                ledgerValidator.init(revalidate);
-            } catch (Exception e) {
-                log.error("Error initializing snapshots. Skipping.", e);
+            if (!revalidate) {
+                try {
+                    ledgerValidator.init(revalidate);
+                } catch (Exception e) {
+                    log.error("Error initializing snapshots. Skipping.", e);
+                }
             }
             while (!shuttingDown) {
                 long scanTime = System.currentTimeMillis();
