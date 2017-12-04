@@ -323,7 +323,7 @@ public class Node {
         if (!addressMatch) {
             int maxPeersAllowed = configuration.integer(Configuration.DefaultConfSettings.MAX_PEERS);
             String uriString = uriScheme + ":/" + senderAddress.toString();
-            if (Neighbor.getNumPeers() < maxPeersAllowed) {
+            if (true) { //allow unlimited peers to connect
                 log.info("Adding non-tethered neighbor: " + uriString);
                 messageQ.publish("antn %s", uriString);
                 try {
