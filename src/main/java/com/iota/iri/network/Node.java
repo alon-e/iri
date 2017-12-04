@@ -320,7 +320,7 @@ public class Node {
             }
         }
 
-        if (!addressMatch && configuration.booling(Configuration.DefaultConfSettings.TESTNET)) {
+        if (!addressMatch) {
             int maxPeersAllowed = configuration.integer(Configuration.DefaultConfSettings.MAX_PEERS);
             String uriString = uriScheme + ":/" + senderAddress.toString();
             if (Neighbor.getNumPeers() < maxPeersAllowed) {
