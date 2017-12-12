@@ -65,7 +65,7 @@ public class Node {
     private final DatagramPacket tipRequestingPacket = new DatagramPacket(new byte[TRANSACTION_PACKET_SIZE],
             TRANSACTION_PACKET_SIZE);
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(5);
+    //private final ExecutorService executor = Executors.newFixedThreadPool(5);
     private final Configuration configuration;
     private final Tangle tangle;
     private final TipsViewModel tipsViewModel;
@@ -128,13 +128,13 @@ public class Node {
 
         parseNeighborsConfig();
 
-        executor.submit(spawnBroadcasterThread());
-        executor.submit(spawnTipRequesterThread());
-        executor.submit(spawnNeighborDNSRefresherThread());
-        executor.submit(spawnProcessReceivedThread());
-        executor.submit(spawnReplyToRequestThread());
+        //executor.submit(spawnBroadcasterThread());
+        //executor.submit(spawnTipRequesterThread());
+        //executor.submit(spawnNeighborDNSRefresherThread());
+        //executor.submit(spawnProcessReceivedThread());
+        //executor.submit(spawnReplyToRequestThread());
 
-        executor.shutdown();
+        //executor.shutdown();
     }
 
 
@@ -229,118 +229,18 @@ public class Node {
         return Optional.of(hostAddress);
     }
     public void preProcessReceivedData(byte[] receivedData, SocketAddress senderAddress, String uriScheme) {
-        TransactionViewModel receivedTransactionViewModel = null;
-        Hash receivedTransactionHash = null;
-
         boolean addressMatch = false;
-        boolean cached = false;
 
         for (final Neighbor neighbor : getNeighbors()) {
             addressMatch = neighbor.matches(senderAddress);
             if (addressMatch) {
-                //Validate transaction
                 neighbor.incAllTransactions();
-                if (rnd.nextDouble() < P_DROP_TRANSACTION) {
-                    //log.info("Randomly dropping transaction. Stand by... ");
-                    break;
-                }
-                try {
-
-                    //Transaction bytes
-
-                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    digest.update(receivedData, 0, TransactionViewModel.SIZE);
-                    ByteBuffer byteHash = ByteBuffer.wrap(digest.digest());
-
-                    //check if cached
-                    synchronized (recentSeenBytes) {
-                        cached = (receivedTransactionHash = recentSeenBytes.get(byteHash)) != null;
+                //send to other neighbors
+                System.arraycopy(receivedData, 0, sendingPacket.getData(), 0, TRANSACTION_PACKET_SIZE);
+                for (final Neighbor other : getNeighbors()) {
+                    if ( !neighbor.equals(other) ) {
+                        other.send(sendingPacket);
                     }
-
-                    if (!cached) {
-                        //if not, then validate
-                        receivedTransactionViewModel = TransactionValidator.validate(receivedData, transactionValidator.getMinWeightMagnitude());
-                        receivedTransactionHash = receivedTransactionViewModel.getHash();
-
-                        synchronized (recentSeenBytes) {
-                            recentSeenBytes.put(byteHash, receivedTransactionHash);
-                        }
-
-                        //if valid - add to receive queue (receivedTransactionViewModel, neighbor)
-                        addReceivedDataToReceiveQueue(receivedTransactionViewModel, neighbor);
-
-                    }
-
-                } catch (NoSuchAlgorithmException e) {
-                    log.error("MessageDigest: "+e);
-                } catch (final RuntimeException e) {
-                    log.error(e.getMessage());
-                    log.error("Received an Invalid TransactionViewModel. Dropping it...");
-                    neighbor.incInvalidTransactions();
-                    break;
-                }
-
-                //Request bytes
-
-                //add request to reply queue (requestedHash, neighbor)
-                Hash requestedHash = new Hash(receivedData, TransactionViewModel.SIZE, TransactionRequester.REQUEST_HASH_SIZE);
-                if (requestedHash.equals(receivedTransactionHash)) {
-                    //requesting a random tip
-                    requestedHash = Hash.NULL_HASH;
-                }
-
-                addReceivedDataToReplyQueue(requestedHash, neighbor);
-
-                //recentSeenBytes statistics
-
-                if (debug) {
-                    long hitCount, missCount;
-                    if(cached) {
-                        hitCount = recentSeenBytesHitCount.incrementAndGet();
-                        missCount = recentSeenBytesMissCount.get();
-                    } else {
-                        hitCount = recentSeenBytesHitCount.get();
-                        missCount = recentSeenBytesMissCount.getAndIncrement();
-                    }
-                    if (((hitCount + missCount) % 50000L == 0)) {
-                        log.info("RecentSeenBytes cache hit/miss ratio: " + hitCount + "/" + missCount);
-                        messageQ.publish("hmr %d/%d", hitCount, missCount);
-                        recentSeenBytesMissCount.set(0L);
-                        recentSeenBytesHitCount.set(0L);
-                    }
-                }
-
-                break;
-            }
-        }
-
-        if (!addressMatch && configuration.booling(Configuration.DefaultConfSettings.TESTNET)) {
-            int maxPeersAllowed = configuration.integer(Configuration.DefaultConfSettings.MAX_PEERS);
-            String uriString = uriScheme + ":/" + senderAddress.toString();
-            if (Neighbor.getNumPeers() < maxPeersAllowed) {
-                log.info("Adding non-tethered neighbor: " + uriString);
-                messageQ.publish("antn %s", uriString);
-                try {
-                    final URI uri = new URI(uriString);
-                    // 3rd parameter false (not tcp), 4th parameter true (configured tethering)
-                    final Neighbor newneighbor = newNeighbor(uri,false);
-                    if (!getNeighbors().contains(newneighbor)) {
-                        getNeighbors().add(newneighbor);
-                        Neighbor.incNumPeers();
-                    }
-                } catch (URISyntaxException e) {
-                    log.error("Invalid URI string: " + uriString);
-                }
-            }
-            else {
-                if ( rejectedAddresses.size() > 20 ) {
-                    // Avoid ever growing list in case of an attack.
-                    rejectedAddresses.clear();
-                }
-                else if ( rejectedAddresses.add(uriString) ) {
-                    messageQ.publish("rntn %s %s", uriString,  String.valueOf(maxPeersAllowed));
-                    log.info("Refused non-tethered neighbor: " + uriString +
-                            " (max-peers = "+ String.valueOf(maxPeersAllowed) + ")");
                 }
             }
         }
@@ -660,7 +560,7 @@ public class Node {
 
     public void shutdown() throws InterruptedException {
         shuttingDown.set(true);
-        executor.awaitTermination(6, TimeUnit.SECONDS);
+        //executor.awaitTermination(6, TimeUnit.SECONDS);
     }
 
     // helpers methods

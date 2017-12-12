@@ -84,8 +84,8 @@ public class IRI {
 
         try {
             iota.init();
-            api.init();
-            ixi.init(configuration.string(Configuration.DefaultConfSettings.IXI_DIR));
+            //api.init();
+            //ixi.init(configuration.string(Configuration.DefaultConfSettings.IXI_DIR));
         } catch (final Exception e) {
             log.error("Exception during IOTA node initialisation: ", e);
             System.exit(-1);
