@@ -65,7 +65,7 @@ public class Node {
     private final DatagramPacket tipRequestingPacket = new DatagramPacket(new byte[TRANSACTION_PACKET_SIZE],
             TRANSACTION_PACKET_SIZE);
 
-    //private final ExecutorService executor = Executors.newFixedThreadPool(5);
+    private final ExecutorService executor = Executors.newFixedThreadPool(1);
     private final Configuration configuration;
     private final Tangle tangle;
     private final TipsViewModel tipsViewModel;
@@ -130,11 +130,11 @@ public class Node {
 
         //executor.submit(spawnBroadcasterThread());
         //executor.submit(spawnTipRequesterThread());
-        //executor.submit(spawnNeighborDNSRefresherThread());
+        executor.submit(spawnNeighborDNSRefresherThread());
         //executor.submit(spawnProcessReceivedThread());
         //executor.submit(spawnReplyToRequestThread());
 
-        //executor.shutdown();
+        executor.shutdown();
     }
 
 
@@ -230,19 +230,24 @@ public class Node {
     }
     public void preProcessReceivedData(byte[] receivedData, SocketAddress senderAddress, String uriScheme) {
         boolean addressMatch = false;
-
-        for (final Neighbor neighbor : getNeighbors()) {
-            addressMatch = neighbor.matches(senderAddress);
-            if (addressMatch) {
-                neighbor.incAllTransactions();
-                //send to other neighbors
-                System.arraycopy(receivedData, 0, sendingPacket.getData(), 0, TRANSACTION_PACKET_SIZE);
-                for (final Neighbor other : getNeighbors()) {
-                    if ( !neighbor.equals(other) ) {
-                        other.send(sendingPacket);
+        try {
+            for (final Neighbor neighbor : getNeighbors()) {
+                addressMatch = neighbor.matches(senderAddress);
+                if (addressMatch) {
+                    neighbor.incAllTransactions();
+                    //send to other neighbors
+                    System.arraycopy(receivedData, 0, sendingPacket.getData(), 0, TRANSACTION_PACKET_SIZE);
+                    for (final Neighbor other : getNeighbors()) {
+                        if (!neighbor.equals(other)) {
+                            synchronized (sendingPacket) {
+                                other.send(sendingPacket);
+                            }
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            log.error("Error proxying transaction", e);
         }
     }
 
@@ -560,7 +565,7 @@ public class Node {
 
     public void shutdown() throws InterruptedException {
         shuttingDown.set(true);
-        //executor.awaitTermination(6, TimeUnit.SECONDS);
+        executor.awaitTermination(6, TimeUnit.SECONDS);
     }
 
     // helpers methods
