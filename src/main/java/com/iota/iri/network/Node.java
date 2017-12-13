@@ -236,10 +236,10 @@ public class Node {
                 if (addressMatch) {
                     neighbor.incAllTransactions();
                     //send to other neighbors
-                    System.arraycopy(receivedData, 0, sendingPacket.getData(), 0, TRANSACTION_PACKET_SIZE);
-                    for (final Neighbor other : getNeighbors()) {
-                        if (!neighbor.equals(other)) {
-                            synchronized (sendingPacket) {
+                    synchronized (sendingPacket) {
+                        System.arraycopy(receivedData, 0, sendingPacket.getData(), 0, TRANSACTION_PACKET_SIZE);
+                        for (final Neighbor other : getNeighbors()) {
+                            if (!neighbor.equals(other)) {
                                 other.send(sendingPacket);
                             }
                         }
