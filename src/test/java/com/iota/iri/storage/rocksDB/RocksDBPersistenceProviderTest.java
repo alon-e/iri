@@ -17,4 +17,6 @@ import static com.iota.iri.controllers.TransactionViewModelTest.getRandomTransac
  * Created by paul on 3/4/17 for iri.
  */
 public class RocksDBPersistenceProviderTest {
+
+    //This is a test
 }
