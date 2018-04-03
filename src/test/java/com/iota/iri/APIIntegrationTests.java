@@ -2,8 +2,15 @@ package com.iota.iri;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.iota.iri.conf.Configuration;
+import com.iota.iri.hash.CurlTest;
+import com.iota.iri.service.API;
 import com.jayway.restassured.RestAssured;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,11 +18,50 @@ import static org.hamcrest.Matchers.containsString;
 import static com.jayway.restassured.RestAssured.*;
 
 public class APIIntegrationTests {
+    public static Iota iota;
+    public static API api;
+    public static IXI ixi;
+    public static Configuration configuration;
+    private static final String portStr = "14265";
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        //setup node
+        configuration = new Configuration();
+        String[] args = new String[2];
+        args[0] = "-p"; //TODO: prettify
+        args[1] = portStr;
+        IRI.validateParams(configuration, args);
+        iota = new Iota(configuration);
+        ixi = new IXI(iota);
+        api = new API(iota, ixi);
+        //init
+        try {
+            iota.init();
+            api.init();
+            ixi.init(configuration.string(Configuration.DefaultConfSettings.IXI_DIR));
+        } catch (final Exception e) {
+            System.exit(-1);
+        }
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        try {
+            ixi.shutdown();
+            api.shutDown();
+            iota.shutdown();
+        } catch (final Exception e) {
+            Logger log = LoggerFactory.getLogger(CurlTest.class);
+            log.error("Exception occurred shutting down IOTA node: ", e);
+            System.exit(-1);
+        }
+    }
 
     private static final Gson gson = new GsonBuilder().create();
 
     static {
-        RestAssured.port = 14265;
+        RestAssured.port = Integer.parseInt(portStr);
     }
 
     /**
@@ -156,14 +202,14 @@ public class APIIntegrationTests {
      * curl http://localhost:14265 \
      -X POST \
      -H 'Content-Type: application/json' \
-     -d '{"command": "findTransactions", "addresses": ["RVORZ9SIIP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVAZETAIRPTM"]}'
+     -d '{"command": "findTransactions", "addresses": ["RVORZ9SIIP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVA"]}'
      */
     @Test
     public void shouldTestFindTransactions() {
 
         final Map<String, Object> request = new HashMap<>();
         request.put("command", "findTransactions");
-        request.put("addresses", new String [] {"RVORZ9SIIP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVAZETAIRPTM"});
+        request.put("addresses", new String [] {"RVORZ9SIIP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVA"});
         given().
                 contentType("application/json").header("X-IOTA-API-Version",1).
                 body(gson.toJson(request)).
@@ -209,8 +255,8 @@ public class APIIntegrationTests {
 
         final Map<String, Object> request = new HashMap<>();
         request.put("command", "getInclusionStates");
-        request.put("transactions", new String [] {"999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"});
-        request.put("tips", new String [] {"999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"});
+        request.put("transactions", new String [] {"QHBYXQWRAHQJZEIARWSQGZJTAIITOZRMBFICIPAVD9YRJMXFXBDPFDTRAHHHP9YPDUVTNOFWZGFGWMYHEKNAGNJHMW"});
+        request.put("tips", new String [] {"ZIJGAJ9AADLRPWNCYNNHUHRRAC9QOUDATEDQUMTNOTABUVRPTSTFQDGZKFYUUIE9ZEBIVCCXXXLKX9999"});
         given().
                 contentType("application/json").header("X-IOTA-API-Version",1).
                 body(gson.toJson(request)).

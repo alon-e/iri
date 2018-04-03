@@ -80,7 +80,7 @@ public class IRI {
         log.info("IOTA Node initialised correctly.");
     }
 
-    private static void validateParams(final Configuration configuration, final String[] args) throws IOException {
+    public static void validateParams(final Configuration configuration, final String[] args) throws IOException {
 
         boolean configurationInit = configuration.init();
 
@@ -237,7 +237,7 @@ public class IRI {
         System.exit(0);
     }
 
-    private static void shutdownHook() {
+    static void shutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 
             log.info("Shutting down IOTA node, please hold tight...");
