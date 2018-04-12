@@ -12,6 +12,14 @@ sudo: required
 #- openssl aes-256-cbc -K $encrypted_d7986c8d48fc_key -iv $encrypted_d7986c8d48fc_iv
 #  -in .snapcraft/travis_snapcraft.cfg -out .snapcraft/snapcraft.cfg -d
 #
+
+branches:
+  only:
+    # This is where pull requests from "bors r+" are built.
+    - staging
+    # This is where pull requests from "bors try" are built.
+    - trying
+    
 deploy:
 - provider: releases
   api_key:
