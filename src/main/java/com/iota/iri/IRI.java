@@ -24,7 +24,7 @@ public class IRI {
 
     public static final String MAINNET_NAME = "IRI";
     public static final String TESTNET_NAME = "IRI Testnet";
-    public static final String VERSION = "1.4.2.4_RC";
+    public static final String VERSION = "1.4.2.2-to-1.4.2.4_RC-db-migration-tool";
     public static Iota iota;
     public static API api;
     public static IXI ixi;
@@ -69,8 +69,7 @@ public class IRI {
 
         try {
             iota.init();
-            api.init();
-            ixi.init(configuration.string(Configuration.DefaultConfSettings.IXI_DIR));
+            return;
         } catch (final Exception e) {
             log.error("Exception during IOTA node initialisation: ", e);
             System.exit(-1);
@@ -318,11 +317,10 @@ public class IRI {
 
             log.info("Shutting down IOTA node, please hold tight...");
             try {
-                ixi.shutdown();
-                api.shutDown();
                 iota.shutdown();
             } catch (final Exception e) {
-                log.error("Exception occurred shutting down IOTA node: ", e);
+                //do nothing
+                //log.error("Exception occurred shutting down IOTA node: ", e);
             }
         }, "Shutdown Hook"));
     }
