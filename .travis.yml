@@ -15,6 +15,7 @@ addons:
   apt:
     packages:
     - jq
+    - libxml2-utils
 
 matrix:
   allow_failures:
@@ -23,14 +24,14 @@ matrix:
 script:
   #run tests and integration tests
   - mvn integration-test
-  - echo `mvn help:evaluate -Dexpression=project.version | grep -e '^[^\[]' | grep -v 'Downloading'` > iri.version
+  - VERSION=`echo -e 'setns x=http://maven.apache.org/POM/4.0.0\ncat /x:project/x:version/text()' | xmllint --shell pom.xml | grep -v /`
+  - echo $VERSION
   #run jar sanity tests
   - git clone https://github.com/alon-e/iri-regression
   - cd iri-regression
   - mkdir iri
   - cp -rf ../target iri/target
-  - cp ../iri.version .
-  - bash run_all_stable_tests.sh `cat iri.version`
+  - bash run_all_stable_tests.sh $VERSION
   - cd ..
 
 after_success:
