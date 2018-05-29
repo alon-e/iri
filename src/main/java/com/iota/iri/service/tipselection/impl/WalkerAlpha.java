@@ -95,12 +95,13 @@ public class WalkerAlpha implements Walker {
 
     private Optional<Hash> select(UnIterableMap<HashId, Integer> ratings, Set<Hash> approversSet) {
 
-        if (approversSet.size() == 0) {
-            return Optional.empty();
-        }
-
         //filter based on tangle state when starting the walk
         List<Hash> approvers = approversSet.stream().filter(ratings::containsKey).collect(Collectors.toList());
+
+        //After filtering, if no approvers are available, it's a tip.
+        if (approvers.size() == 0) {
+            return Optional.empty();
+        }
 
         //calculate the probabilities
         List<Integer> walkRatings = approvers.stream().map(ratings::get).collect(Collectors.toList());
