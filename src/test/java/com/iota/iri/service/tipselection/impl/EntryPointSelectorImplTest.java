@@ -24,13 +24,12 @@ public class EntryPointSelectorImplTest {
     @Mock
     private Tangle tangle;
 
-
     @Test
     public void testEntryPointWithTangleData() throws Exception {
         //TODO This can't be mocked until Hash is rewritten as an interface
         Hash milestoneHash = Hash.calculate(SpongeFactory.Mode.CURLP27, new int[0]);
         mockTangleBehavior(milestoneHash);
-        mockMilestoneTrackerBehavior();
+        mockMilestoneTrackerBehavior(0, Hash.NULL_HASH);
 
         EntryPointSelector entryPointSelector = new EntryPointSelectorImpl(tangle, milestone, false, 0);
         Hash entryPoint = entryPointSelector.getEntryPoint(10);
@@ -40,7 +39,7 @@ public class EntryPointSelectorImplTest {
 
     @Test
     public void testEntryPointWithoutTangleData() throws Exception {
-        mockMilestoneTrackerBehavior();
+        mockMilestoneTrackerBehavior(0, Hash.NULL_HASH);
 
         EntryPointSelector entryPointSelector = new EntryPointSelectorImpl(tangle, milestone, false, 0);
         Hash entryPoint = entryPointSelector.getEntryPoint(10);
@@ -49,10 +48,10 @@ public class EntryPointSelectorImplTest {
     }
 
 
-    private void mockMilestoneTrackerBehavior() {
+    private void mockMilestoneTrackerBehavior(int latestSolidSubtangleMilestoneIndex, Hash latestSolidSubtangleMilestone) {
         //TODO this should be mocked via getter methods
-        milestone.latestSolidSubtangleMilestoneIndex = 0;
-        milestone.latestSolidSubtangleMilestone = Hash.NULL_HASH;
+        milestone.latestSolidSubtangleMilestoneIndex = latestSolidSubtangleMilestoneIndex;
+        milestone.latestSolidSubtangleMilestone = latestSolidSubtangleMilestone;
     }
 
     private void mockTangleBehavior(Hash milestoneModelHash) throws Exception {
@@ -61,6 +60,7 @@ public class EntryPointSelectorImplTest {
         milestoneModel.index = new IntegerIndex(0);
         milestoneModel.hash = milestoneModelHash;
         Pair<Indexable, Persistable> indexMilestoneModel = new Pair<>(new IntegerIndex(0), milestoneModel);
-        Mockito.when(tangle.getFirst(com.iota.iri.model.Milestone.class, IntegerIndex.class)).thenReturn(indexMilestoneModel);
+        Mockito.when(tangle.getFirst(com.iota.iri.model.Milestone.class, IntegerIndex.class))
+                .thenReturn(indexMilestoneModel);
     }
 }
