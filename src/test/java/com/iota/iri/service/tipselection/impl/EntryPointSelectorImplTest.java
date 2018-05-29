@@ -26,7 +26,6 @@ public class EntryPointSelectorImplTest {
 
     @Test
     public void testEntryPointWithTangleData() throws Exception {
-        //TODO This can't be mocked until Hash is rewritten as an interface
         Hash milestoneHash = Hash.calculate(SpongeFactory.Mode.CURLP27, new int[0]);
         mockTangleBehavior(milestoneHash);
         mockMilestoneTrackerBehavior(0, Hash.NULL_HASH);
@@ -49,13 +48,11 @@ public class EntryPointSelectorImplTest {
 
 
     private void mockMilestoneTrackerBehavior(int latestSolidSubtangleMilestoneIndex, Hash latestSolidSubtangleMilestone) {
-        //TODO this should be mocked via getter methods
         milestone.latestSolidSubtangleMilestoneIndex = latestSolidSubtangleMilestoneIndex;
         milestone.latestSolidSubtangleMilestone = latestSolidSubtangleMilestone;
     }
 
     private void mockTangleBehavior(Hash milestoneModelHash) throws Exception {
-        //TODO rename com.iota.iri.Milestone -> com.iota.iri.MilestoneTracker
         com.iota.iri.model.Milestone milestoneModel = new com.iota.iri.model.Milestone();
         milestoneModel.index = new IntegerIndex(0);
         milestoneModel.hash = milestoneModelHash;
