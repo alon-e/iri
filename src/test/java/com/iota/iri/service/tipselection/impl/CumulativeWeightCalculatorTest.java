@@ -146,7 +146,7 @@ public class CumulativeWeightCalculatorTest {
     }
 
     @Test
-    public void testCalculateCumulativeWeightAlon() throws Exception {
+    public void testCalculateCumulativeWeight2() throws Exception {
         TransactionViewModel transaction, transaction1, transaction2, transaction3, transaction4, transaction5,
                 transaction6;
         transaction = new TransactionViewModel(getRandomTransactionTrits(), getRandomTransactionHash());
