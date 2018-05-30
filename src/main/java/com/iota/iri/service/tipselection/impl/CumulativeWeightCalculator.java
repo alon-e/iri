@@ -22,7 +22,7 @@ import java.util.*;
 public class CumulativeWeightCalculator implements RatingCalculator{
 
     private static final Logger log = LoggerFactory.getLogger(CumulativeWeightCalculator.class);
-    public static final int MAX_ANCESTORS_SIZE = 1000;
+    public static final int MAX_ANCESTORS_SIZE = 5000;
 
     public final Tangle tangle;
 
