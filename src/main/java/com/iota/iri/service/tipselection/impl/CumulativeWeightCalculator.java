@@ -42,7 +42,6 @@ public class CumulativeWeightCalculator implements RatingCalculator{
     //Uses DFS algorithm to sort
     private LinkedHashSet<Hash> sortTransactionsInTopologicalOrder(Hash startTx) throws Exception {
         LinkedHashSet<Hash> sortedTxs = new LinkedHashSet<>();
-        Set<Hash> temporary = new HashSet<>();
         Deque<Hash> stack = new ArrayDeque<>();
         Map<Hash, Collection<Hash>> txToDirectApprovers = new HashMap<>();
 
@@ -53,17 +52,12 @@ public class CumulativeWeightCalculator implements RatingCalculator{
                 Collection<Hash> appHashes = getTxDirectApproversHashes(txHash, txToDirectApprovers);
                 if (CollectionUtils.isNotEmpty(appHashes)) {
                     Hash txApp = getAndRemoveApprover(appHashes);
-                    if (!temporary.add(txApp)) {
-                        throw new IllegalStateException("A circle or a collision was found in a subtangle on hash: "
-                                + txApp);
-                    }
                     stack.push(txApp);
                     continue;
                 }
             }
             else {
-                txHash = stack.pop();
-                temporary.remove(txHash);
+                stack.pop();
                 continue;
             }
             sortedTxs.add(txHash);
