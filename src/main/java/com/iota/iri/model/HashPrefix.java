@@ -50,13 +50,10 @@ public final class HashPrefix implements HashId {
 
     @Override
     public String toString() {
-        return trytes() +
-                " HashPrefix{" +
-                "bytes=" + Arrays.toString(bytes) +
-                '}';
+        return trytes(bytes);
     }
 
-    private String trytes() {
+    private static String trytes(byte[] bytes) {
         int[] dest = new int[Curl.HASH_LENGTH];
         Converter.getTrits(bytes, dest);
         return Converter.trytes(dest);
