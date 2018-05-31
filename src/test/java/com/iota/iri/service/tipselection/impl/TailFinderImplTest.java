@@ -89,6 +89,4 @@ public class TailFinderImplTest {
         Optional<Hash> tail = tailFinder.findTail(tx2.getHash());
         Assert.assertFalse("tail was found, but should me missing", tail.isPresent());
     }
-
-
 }
