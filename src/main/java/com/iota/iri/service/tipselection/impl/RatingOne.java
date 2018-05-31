@@ -10,6 +10,10 @@ import com.iota.iri.utils.collections.interfaces.UnIterableMap;
 
 import java.util.*;
 
+/**
+ * Implementation of <tt>RatingCalculator</tt> that gives a uniform rating of 1 to each transaction.
+ * Used to create uniform random walks.
+ */
 public class RatingOne implements RatingCalculator {
 
     private final Tangle tangle;
@@ -18,16 +22,6 @@ public class RatingOne implements RatingCalculator {
         this.tangle = tangle;
     }
 
-    /**
-     * Cumulative rating calculator
-     * <p>
-     * Calculates the cumulative rating of the transactions that reference
-     * a given entry point.
-     * </p>
-     *
-     * @param entryPoint  Transaction ID of selected milestone.
-     * @return  Hash Map of cumulative ratings.
-     */
     public UnIterableMap<HashId, Integer> calculate(Hash entryPoint) throws Exception {
         UnIterableMap<HashId, Integer> rating = new TransformingMap<>(null, null);
 
