@@ -13,6 +13,11 @@ import com.iota.iri.zmq.MessageQ;
 import java.security.SecureRandom;
 import java.util.*;
 
+/**
+ * Implementation of <tt>TipSelector</tt> that selects 2 tips,
+ * based on cumulative weights and transition function alpha.
+ *
+ */
 public class TipSelectorImpl implements TipSelector {
 
     public static final String REFERENCE_TRANSACTION_TOO_OLD = "reference transaction is too old";
@@ -56,8 +61,24 @@ public class TipSelectorImpl implements TipSelector {
         this.milestone = milestone;
     }
 
+    /**
+     * Implementation of getTransactionsToApprove
+     *
+     * General process:
+     * <ol>
+     * <li><b>Preparation:</b> select <CODE>entryPoint</CODE> and calculate rating for all referencing transactions
+     * <li><b>1st Random Walk:</b> starting from <CODE>entryPoint</CODE>.
+     * <li><b>2nd Random Walk:</b> if <CODE>reference</CODE> exists and is in the rating calulationg, start from <CODE>reference</CODE>,
+     *     otherwise start again from <CODE>entryPoint</CODE>.
+     * <li><b>Validate:</b> check that both tips are not contradicting.
+     * </ol>
+     * @param depth  The depth that the transactions will be found from.
+     * @param reference  An optional transaction hash to be referenced by tips.
+     * @return  Transactions to approve
+     * @throws Exception If DB fails to retrieve transactions
+     */
     @Override
-    public List<Hash> getTransactionsToApprove(Optional<Hash> reference, int depth) throws Exception {
+    public List<Hash> getTransactionsToApprove(int depth, Optional<Hash> reference) throws Exception {
         try {
             milestone.latestSnapshot.rwlock.readLock().lock();
 

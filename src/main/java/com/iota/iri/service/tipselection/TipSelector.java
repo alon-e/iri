@@ -5,25 +5,26 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This interface is used for gathering tips
+ * Selects tips to be approved
  */
 
 
 public interface TipSelector {
 
     /**
-     *Method for finding tips
+     * Method for finding tips
      *
      * <p>
-     *  This method is used to find tips for approval based off of an entry reference ID
-     *  and a given depth.
+     *  This method is used to find tips for approval given a depth,
+     *  if reference is present then tips will also reference this transaction.
      * </p>
      *
-     * @param reference  The transaction ID reference for entry.
      * @param depth  The depth that the transactions will be found from.
-     * @return  Transactions for
+     * @param reference  An optional transaction hash to be referenced by tips.
+     * @return  Transactions to approve
+     * @throws Exception If DB fails to retrieve transactions
      */
-    List<Hash> getTransactionsToApprove(Optional<Hash> reference, int depth) throws Exception;
+    List<Hash> getTransactionsToApprove(int depth, Optional<Hash> reference) throws Exception;
 
     int getMaxDepth();
 }

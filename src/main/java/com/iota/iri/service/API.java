@@ -43,7 +43,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -296,7 +295,7 @@ public class API {
                     }
 
                     try {
-                        final List<Hash> tips = getTransactionToApproveStatement(reference, depth);
+                        final List<Hash> tips = getTransactionToApproveStatement(depth, reference);
                         return GetTransactionsToApproveResponse.create(tips.get(0), tips.get(1));
 
                     } catch (RuntimeException e) {
@@ -579,13 +578,13 @@ public class API {
         ellapsedTime_getTxToApprove += ellapsedTime;
     }
 
-    public synchronized List<Hash> getTransactionToApproveStatement(Optional<Hash> reference, int depth) throws Exception {
+    public synchronized List<Hash> getTransactionToApproveStatement(int depth, Optional<Hash> reference) throws Exception {
 
         if (invalidSubtangleStatus()) {
             throw new RuntimeException("This operations cannot be executed: The subtangle has not been updated yet.");
         }
 
-        List<Hash> tips = instance.tipsSelector.getTransactionsToApprove(reference, depth);
+        List<Hash> tips = instance.tipsSelector.getTransactionsToApprove(depth, reference);
 
         if (log.isDebugEnabled()) {
             gatherStatisticsOnTipSelection();
@@ -1077,7 +1076,7 @@ public class API {
 
     //only available on testnet
     private synchronized void storeMessageStatement(final String address, final String message) throws Exception {
-        final List<Hash> txToApprove = getTransactionToApproveStatement(Optional.empty(), 3);
+        final List<Hash> txToApprove = getTransactionToApproveStatement(3, Optional.empty());
 
         final int txMessageSize = TransactionViewModel.SIGNATURE_MESSAGE_FRAGMENT_TRINARY_SIZE / 3;
 

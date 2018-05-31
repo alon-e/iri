@@ -8,6 +8,10 @@ import com.iota.iri.storage.Tangle;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Implementation of <tt>TailFinder</tt> that given a transaction hash finds the tail of the associated bundle.
+ *
+ */
 public class TailFinderImpl implements TailFinder {
 
     private final Tangle tangle;

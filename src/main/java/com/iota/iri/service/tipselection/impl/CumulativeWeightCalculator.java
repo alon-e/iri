@@ -19,6 +19,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * Implementation of <tt>RatingCalculator</tt> that gives the cumulative for each transaction referencing entryPoint.
+ * Used to create a weighted random walks.
+ *
+ * @see <a href="cumulative.md">https://github.com/alongalky/iota-docs/blob/master/cumulative.md</a>
+ */
 public class CumulativeWeightCalculator implements RatingCalculator{
 
     private static final Logger log = LoggerFactory.getLogger(CumulativeWeightCalculator.class);
@@ -30,7 +36,6 @@ public class CumulativeWeightCalculator implements RatingCalculator{
         this.tangle = tangle;
     }
 
-    //See https://github.com/alongalky/iota-docs/blob/master/cumulative.md
     @Override
     public UnIterableMap<HashId, Integer> calculate(Hash entryPoint) throws Exception {
         log.debug("Start calculating cw starting with tx hash {}", entryPoint);

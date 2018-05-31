@@ -3,13 +3,21 @@ package com.iota.iri.service.tipselection;
 import com.iota.iri.model.Hash;
 
 /**
- * This interface is used to enforce usage of the walk() method which
- * is responsible for returning "tips" via a Markov Chain Monte Carlo
- * function
+ * Validates consistency of tails.
  */
 @FunctionalInterface
 public interface WalkValidator {
 
-    boolean isValid(Hash transactionId) throws Exception;
+    /**
+     * Validation
+     * <p>
+     * Checks if a given transaction is a valid tail.
+     * </p>
+     *
+     * @param transactionHash  Transaction hash to validate consistency of.
+     * @return  True iff tail is valid.
+     * @throws Exception If Validation fails to execute
+     */
+    boolean isValid(Hash transactionHash) throws Exception;
 
 }

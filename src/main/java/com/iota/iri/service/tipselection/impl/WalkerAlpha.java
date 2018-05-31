@@ -15,6 +15,11 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of <tt>Walker</tt> that performs a weighted random walk
+ * with <CODE>e^(alpha*Hy)</CODE> as the transition function.
+ *
+ */
 public class WalkerAlpha implements Walker {
 
     private double alpha;

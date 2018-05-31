@@ -5,22 +5,21 @@ import com.iota.iri.model.HashId;
 import com.iota.iri.utils.collections.interfaces.UnIterableMap;
 
 /**
- * This interface is used to enforce usage of the calculate() method
- * which is in charge of calculating the cumulative rating of
- * transactions with connection to the entry point.
+ * Calculates the rating for a sub graph
  */
 @FunctionalInterface
 public interface RatingCalculator {
 
     /**
-     * Cumulative rating calculator
+     * Rating calculator
      * <p>
-     * Calculates the cumulative rating of the transactions that reference
+     * Calculates the rating of all the transactions that reference
      * a given entry point.
      * </p>
      *
-     * @param entryPoint  Transaction ID of selected milestone.
-     * @return  Hash Map of cumulative ratings.
+     * @param entryPoint  Transaction hash of a selected entry point.
+     * @return  Map
+     * @throws Exception If DB fails to retrieve transactions
      */
 
     UnIterableMap<HashId, Integer> calculate(Hash entryPoint) throws Exception;

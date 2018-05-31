@@ -12,6 +12,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * Implementation of <tt>WalkValidator</tt> that checks consistency of the ledger as part of validity checks.
+ *
+ *     A transaction is only valid if:
+ *      <ol>
+ *      <li>it is a tail
+ *      <li>all the history of the transaction is present (is solid)
+ *      <li>it does not reference an old unconfirmed transaction (not belowMaxDepth)
+ *      <li>the ledger is still consistent if the transaction is added
+ *          (balances of all addresses are correct and all signatures are valid)
+ *      </ol>
+ */
 public class WalkValidatorImpl implements WalkValidator {
 
     private final Tangle tangle;
@@ -44,12 +56,11 @@ public class WalkValidatorImpl implements WalkValidator {
 
         TransactionViewModel transactionViewModel = TransactionViewModel.fromHash(tangle, transactionHash);
 
-        if (transactionViewModel.getCurrentIndex() != 0) {
-            log.debug("Validation failed: {} not a tail", transactionHash);
-            return false;
-        }
         if (transactionViewModel.getType() == TransactionViewModel.PREFILLED_SLOT) {
             log.debug("Validation failed: {} is missing in db", transactionHash);
+            return false;
+        } else if (transactionViewModel.getCurrentIndex() != 0) {
+            log.debug("Validation failed: {} not a tail", transactionHash);
             return false;
         } else if (!transactionValidator.checkSolidity(transactionViewModel.getHash(), false)) {
             log.debug("Validation failed: {} is not solid", transactionHash);
