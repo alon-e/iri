@@ -16,6 +16,8 @@ import com.iota.iri.hash.SpongeFactory;
 import com.iota.iri.model.Hash;
 import com.iota.iri.network.Neighbor;
 import com.iota.iri.service.dto.*;
+import com.iota.iri.service.tipselection.impl.TipSelectorImpl;
+import com.iota.iri.service.tipselection.impl.WalkerAlpha;
 import com.iota.iri.utils.Converter;
 import com.iota.iri.utils.IotaIOUtils;
 import com.iota.iri.utils.MapIdentityManager;
@@ -207,6 +209,27 @@ public class API {
             log.debug("# {} -> Requesting command '{}'", counter.incrementAndGet(), command);
 
             switch (command) {
+                case "getAlpha": {
+                    if (!testNet) {
+                        return AccessLimitedResponse.create("COMMAND setAlpha is only available on testnet");
+                    }
+                    TipSelectorImpl tempTipSelector = (TipSelectorImpl) instance.tipsSelector;
+                    WalkerAlpha tempWalker = (WalkerAlpha) tempTipSelector.getWalker();
+                    return GetAlphaResponse.create(tempWalker.getAlpha());
+                }
+
+                case "setAlpha": {
+                    if (!testNet) {
+                        return AccessLimitedResponse.create("COMMAND setAlpha is only available on testnet");
+                    }
+                    final double alpha = getParameterAsDouble(request, "alpha");
+
+                    TipSelectorImpl tempTipSelector = (TipSelectorImpl) instance.tipsSelector;
+                    WalkerAlpha tempWalker = (WalkerAlpha) tempTipSelector.getWalker();
+                    tempWalker.setAlpha(alpha);
+                    return AbstractResponse.createEmptyResponse();
+                }
+
                 case "storeMessage": {
                     if (!testNet) {
                         return AccessLimitedResponse.create("COMMAND storeMessage is only available on testnet");

@@ -39,6 +39,10 @@ public class TipSelectorImpl implements TipSelector {
         return maxDepth;
     }
 
+    public Walker getWalker() {
+        return walker;
+    }
+
     public TipSelectorImpl(Tangle tangle,
                            LedgerValidator ledgerValidator,
                            TransactionValidator transactionValidator,
