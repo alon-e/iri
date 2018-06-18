@@ -1,17 +1,59 @@
 language: java
-
 jdk:
-- oraclejdk8
+  - oraclejdk8
+  - openjdk8
+  - oraclejdk9
+
+cache:
+  apt: true
+  directories:
+    - $HOME/.m2
 
 sudo: required
 
-#services:
-#- docker 000ctGQcXVGUjeURqQeHclLLpst2Td0uR6SgAGLEOxjeQ9ghzQWC/4x9BPW7xf7SkxhESWB2MMTvxma8xaV7hmNSsUK7tHyMLZPGdhDnPuUx2E6eNG4IZzUvcmHI4U=
+addons:
+  apt:
+    packages:
+    - jq
+    - libxml2-utils
 
-#after_success:
-#- openssl aes-256-cbc -K $encrypted_d7986c8d48fc_key -iv $encrypted_d7986c8d48fc_iv
-#  -in .snapcraft/travis_snapcraft.cfg -out .snapcraft/snapcraft.cfg -d
-#
+matrix:
+  allow_failures:
+    - jdk: oraclejdk9
+
+script:
+  #run tests and integration tests
+  # see  https://stackoverflow.com/questions/34405047/how-do-you-merge-into-another-branch-using-travis-with-git-commands?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+  #- build_head=$(git rev-parse HEAD)
+  #- git config --replace-all remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  #- git fetch origin dev
+  #- git checkout -f dev
+  #- git checkout $build_head
+  #- git merge dev
+  - mvn integration-test -Dlogging-level=INFO
+  #run jar sanity tests
+  - VERSION=`echo -e 'setns x=http://maven.apache.org/POM/4.0.0\ncat /x:project/x:version/text()' | xmllint --shell pom.xml | grep -v / | tr -d -`
+  - echo $VERSION
+  - git clone https://github.com/iotaledger/iri-regression-tests.git
+  - cd iri-regression-tests
+  - git checkout -f master
+  - curl -LO https://s3.eu-central-1.amazonaws.com/iotaledger-dbfiles/dev/testnet_files.tgz
+  - tar -xzf testnet_files.tgz
+  - mkdir iri
+  - cp -rf ../target iri/target
+  - bash run_all_stable_tests.sh $VERSION
+  - cd ..
+  #plot sha256sums of jar files - for manual releases
+  - cd target
+  - sha256sum *.jar*
+  - cd ..
+
+
+after_success:
+  #codacy-coverage send report. Uses Travis Env variable (CODACY_PROJECT_TOKEN)
+  - test $TRAVIS_PULL_REQUEST = "false" && test $TRAVIS_JDK_VERSION = "oraclejdk8" && wget -O codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
+  - test $TRAVIS_PULL_REQUEST = "false" && test $TRAVIS_JDK_VERSION = "oraclejdk8" && java -jar codacy-coverage-reporter-assembly-latest.jar report -l Java -r target/site/jacoco/jacoco.xml
+
 
 deploy:
   provider: releases
@@ -29,6 +71,7 @@ deploy:
     tags: true
     repo: alon-e/iri
     branch: feat/TravisCIadditions
+
 env:
   global:
   - secure: oJutGSe5KK3ymwSvohFZ89UL7XaNlXH6fdO2nBEYbk5KyYuQ1Wm+h6+N/05EbwxwDK9dEiF73ZJh76sZ3IWKjRC8VWjUAz+8p38hGvQwByrVsJkrbs5SA4wA4XnyvEqyMV3yqbcgRNbMlIvj7ubUbxMizz7MA7plnumrnx9ejPG1WP4rNgzUA3XcBWHdITyOSg9rSMBJzMZ9CN1Dv+1SxZV+GlkyWN8n1Cshkq2TnNl1oRZqGKs7O0ma1dN0hUKtBa80AsCTjH8ojZFJU92gmkvAWDw5BTSZ8mhX9sZcbBYT8SnQxNDrf51HJ+K7hvdpFbsy5Z0g24cNJkA8lfUnzXFznZ/PH4hm8MeVWjRiWdE4VZr47iYzJcs0brOHSeab6fBoeTPS5899Q3V+yAw6CahfvOBthuF3Ymy+fZXoDO5242PSWXXsGwFqK7r/gT0iwJZxMBI/UUWsP/s7J/CWux8ftwbOdSbs4XdQZsuqxzKEKDDwU0FTytantsMS/vcgI41K5azyY4tbkixzydaBPvhimkflaWcuZb//mXcntitgyenaSwfkLX5pD5l1srVzSliyabnH7AprLOm1B9DBfk2leI2XgGJg/Q/GrVtcjcl1FU0aXBFhLrp3BkK7chlG2v/Eacr8Pb6NOQHORyq64n2prF6zvExX0aadOddefoA=
