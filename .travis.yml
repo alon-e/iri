@@ -26,6 +26,7 @@ deploy:
     - mvn package
     - cd target && sha256sum *.jar* > SHA256SUMS && cd ..
   on:
+    tags: true
     repo: alon-e/iri
     branch: feat/TravisCIadditions
 env:
