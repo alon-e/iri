@@ -21,8 +21,9 @@ deploy:
   file:
     - target/*.jar*
     - target/SHA256SUMS
+  skip_cleanup: true
   deploy:
-    - mvn package -P build-extras
+    - mvn package
     - cd target && sha256sum *.jar* > SHA256SUMS && cd ..
   on:
     repo: alon-e/iri
