@@ -43,7 +43,7 @@ script:
   - cp -rf ../target iri/target
   - bash run_all_stable_tests.sh $VERSION
   - cd ..
-  #plot sha256sums of jar files - for manual releases
+  #print sha256sums of jar files - for manual releases
   - cd target
   - sha256sum *.jar*
   - cd ..
@@ -61,8 +61,7 @@ deploy:
     secure: BZGdKkuIeKC92clvoamm7emOiumlUcy2kmnOVfLUpr2oTuQ6M2shvmRn+8VgX2ZzQVkGoxyk1s2D8dbGyBHLXnwSJnYYwq6H/LFI7vuJ2DDcJ9uz8ZIgAesDX1iBfehVAg86LD/pMNvwfQEypzDy02Lenou9P04D+QEu/p1zWelBZ3qnIbB0eGZdPMh91zfnGfK1R/K+vc3YFQ3QXv9phF/HoO9IkP+uDoXd1h2OQY2H8ezzVAWxFUJIP2QAW0opI5/PRNALTQhmRvhBF4xIdgjJPE/pysdXnpIoHMhjrJdTynyTa2j556TJPVu0i7iMDuDIEDx5mcHuyQOENaDBlgYl1hpXsu0PxuhzSDkkIKY09DAZ/4hoZHGaMacF0aOt3S089o/BHicfhjqmnNw22Esoxj0muTKhw5X/J4144oAGReofyHqymdxr3/xQp8sQx/F7TNzBBVI/JSCajplnQoGyS8BY1Xi4SFTIKH80kV6AhLle6u2AHypeEGxAiBQ1Oq0JpNRgSN/ZJnIh54oIJfdHxcdU34kYhsPm9ChMg8p6+oK7i/RD9RhunhWQZSS6bzjxBFfuyhE828hpcnt2mhR6jXPGt2lk+IFvvbtIdMSO4534w9vBvDsit552hlHEZ4wgxkGBeRWSwQSLPQ5apbrsnaAPLynNuQFPI6MQWxk=
   file_glob: true
   file:
-    - target/*.jar*
-    - target/SHA256SUMS
+    - target/*
   skip_cleanup: true
   deploy:
     - mvn package
