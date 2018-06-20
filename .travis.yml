@@ -32,17 +32,17 @@ script:
   #- git merge dev
   - mvn integration-test -Dlogging-level=INFO
   #run jar sanity tests
-  - VERSION=`echo -e 'setns x=http://maven.apache.org/POM/4.0.0\ncat /x:project/x:version/text()' | xmllint --shell pom.xml | grep -v / | tr -d -`
-  - echo $VERSION
-  - git clone https://github.com/iotaledger/iri-regression-tests.git
-  - cd iri-regression-tests
-  - git checkout -f master
-  - curl -LO https://s3.eu-central-1.amazonaws.com/iotaledger-dbfiles/dev/testnet_files.tgz
-  - tar -xzf testnet_files.tgz
-  - mkdir iri
-  - cp -rf ../target iri/target
-  - bash run_all_stable_tests.sh $VERSION
-  - cd ..
+#  - VERSION=`echo -e 'setns x=http://maven.apache.org/POM/4.0.0\ncat /x:project/x:version/text()' | xmllint --shell pom.xml | grep -v / | tr -d -`
+#  - echo $VERSION
+#  - git clone https://github.com/iotaledger/iri-regression-tests.git
+#  - cd iri-regression-tests
+#  - git checkout -f master
+#  - curl -LO https://s3.eu-central-1.amazonaws.com/iotaledger-dbfiles/dev/testnet_files.tgz
+#  - tar -xzf testnet_files.tgz
+#  - mkdir iri
+#  - cp -rf ../target iri/target
+#  - bash run_all_stable_tests.sh $VERSION
+#  - cd ..
   #print sha256sums of jar files - for manual releases
   - cd target
   - sha256sum *.jar*
@@ -63,6 +63,7 @@ deploy:
   file:
     - target/*
   skip_cleanup: true
+  prerelease: true
   deploy:
     - mvn package
     - cd target && sha256sum *.jar* > SHA256SUMS && cd ..
