@@ -44,7 +44,7 @@ script:
 #  - bash run_all_stable_tests.sh $VERSION
 #  - cd ..
   #print sha256sums of jar files - for manual releases
-  - touch target/SHA256SUMS
+  - sha256sum target/*.jar* | tee target/SHA256SUMS
 
 
 after_success:
