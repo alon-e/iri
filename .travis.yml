@@ -66,7 +66,7 @@ deploy:
   prerelease: true
   deploy:
     - mvn package
-    - cd target && sha256sum *.jar* > SHA256SUMS && cd ..
+    - sha256sum target/*.jar* > target/SHA256SUMS
   on:
     tags: true
     repo: alon-e/iri
