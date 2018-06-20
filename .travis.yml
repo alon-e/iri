@@ -64,9 +64,8 @@ deploy:
     - target/*
   skip_cleanup: true
   prerelease: true
-  deploy:
-    - mvn package
-    - sha256sum target/*.jar* > target/SHA256SUMS
+  deploy: mvn package
+  after_deploy: sha256sum target/*.jar* > target/SHA256SUMS
   on:
     tags: true
     repo: alon-e/iri
