@@ -33,6 +33,10 @@ public class TipSelectorImpl implements TipSelector {
     private final Milestone milestone;
     private final TipSelConfig config;
 
+    public Walker getWalker() {
+        return walker;
+    }
+
     public TipSelectorImpl(Tangle tangle,
                            LedgerValidator ledgerValidator,
                            EntryPointSelector entryPointSelector,
@@ -110,4 +114,5 @@ public class TipSelectorImpl implements TipSelector {
             throw new InvalidAlgorithmParameterException(REFERENCE_TRANSACTION_TOO_OLD);
         }
     }
+
 }

@@ -16,7 +16,9 @@ import com.iota.iri.hash.SpongeFactory;
 import com.iota.iri.model.Hash;
 import com.iota.iri.network.Neighbor;
 import com.iota.iri.service.dto.*;
+import com.iota.iri.service.tipselection.impl.TipSelectorImpl;
 import com.iota.iri.service.tipselection.impl.WalkValidatorImpl;
+import com.iota.iri.service.tipselection.impl.WalkerAlpha;
 import com.iota.iri.utils.Converter;
 import com.iota.iri.utils.IotaIOUtils;
 import com.iota.iri.utils.MapIdentityManager;
@@ -35,6 +37,7 @@ import io.undertow.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xnio.Option;
 import org.xnio.channels.StreamSinkChannel;
 import org.xnio.streams.ChannelInputStream;
 
@@ -295,9 +298,12 @@ public class API {
                     if (depth < 0 || depth > instance.configuration.getMaxDepth()) {
                         return ErrorResponse.create("Invalid depth input");
                     }
+                    final Optional<Double> alpha = request.containsKey("alpha") ?
+                            Optional.of(getParameterAsDouble(request, "alpha"))
+                            : Optional.empty();
 
                     try {
-                        List<Hash> tips = getTransactionToApproveStatement(depth, reference);
+                        List<Hash> tips = getTransactionToApproveStatement(depth, reference, alpha);
                         return GetTransactionsToApproveResponse.create(tips.get(0), tips.get(1));
 
                     } catch (RuntimeException e) {
@@ -588,10 +594,17 @@ public class API {
     }
 
     public synchronized List<Hash> getTransactionToApproveStatement(int depth, Optional<Hash> reference) throws Exception {
+        return getTransactionToApproveStatement(3, Optional.empty(), Optional.empty());
+    }
+
+    public synchronized List<Hash> getTransactionToApproveStatement(int depth, Optional<Hash> reference, Optional<Double> alpha) throws Exception {
 
         if (invalidSubtangleStatus()) {
             throw new IllegalStateException("This operations cannot be executed: The subtangle has not been updated yet.");
         }
+
+        //update alpha in a getTransactionsToApprove call
+        alpha.ifPresent(alphaDouble -> ((WalkerAlpha) ((TipSelectorImpl) instance.tipsSelector).getWalker()).setAlpha(alphaDouble));
 
         List<Hash> tips = instance.tipsSelector.getTransactionsToApprove(depth, reference);
 
