@@ -24,6 +24,7 @@ matrix:
 script:
   #run tests and integration tests
   # see  https://stackoverflow.com/questions/34405047/how-do-you-merge-into-another-branch-using-travis-with-git-commands?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+  - echo $TRAVIS_BRANCH
   - build_head=$(git rev-parse HEAD) 
   - git config --replace-all remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
   - git fetch origin $TRAVIS_BRANCH
